@@ -124,3 +124,67 @@ const Modal = () => {
 export default Modal;
 
 ```
+
+### Passing arguments
+
+We can pass arguments to our reducers and access them by the payload parameter.
+
+* Example Component:
+
+```javascript
+import { useDispatch } from "react-redux";
+import { cartActions } from '../../store/cart-slice'
+import CustomButton from "../common/CustomButton";
+
+const ModalItem = ({item}) => {
+  const dispatch = useDispatch();
+
+  const handlePlus = () => {
+    dispatch(cartActions.addItem(item));
+  }
+
+  return(
+    <div className="flex flex-col gap-2">
+      ....
+      <CustomButton text='+' onPress={handlePlus} />
+    </div>
+  )
+}
+
+```
+
+* Reducer function.
+
+```javascript
+import { createSlice } from "@reduxjs/toolkit";
+
+const initialState = {
+  items: [],
+  totalItems: 0,
+  totalAmount: 0
+};
+
+export const cartSlice = createSlice({
+  name: 'cart',
+  initialState: initialState,
+  reducers: {
+    addItem(state, action){
+      const newItem = action.payload;
+      const currentItem = state.items.find(item => newItem.id === item.id);
+
+      if (currentItem){
+        currentItem.quantity++;
+      } else {
+        state.items.push({
+          id: newItem.id,
+          name: newItem.name,
+          quantity: 1,
+          price: newItem.price,
+        });
+      }
+    },
+  }
+})
+
+export const cartActions = cartSlice.actions;
+```

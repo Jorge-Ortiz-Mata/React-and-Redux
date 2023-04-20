@@ -10,12 +10,11 @@ const Item = ({product}) => {
   }
 
   return(
-    <div className="border flex flex-col gap-2 p-5">
-      <div className="flex items-center justify-between">
+    <div className="border flex p-5 justify-between">
+      <div className="flex items-center justify-between gap-5">
         <h4 className="font-semibold text-base">{product.name}</h4>
-        <p>${product.price}</p>
+        <p className='font-semibold italic text-sm'>${product.price} USD</p>
       </div>
-      <p>This is short description</p>
       <div className="flex items-center justify-end">
         <CustomButton text='Add to the cart' onPress={hanldleClick} />
       </div>

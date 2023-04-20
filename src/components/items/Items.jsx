@@ -4,7 +4,7 @@ import Item from "./Item";
 const Items = () => {
 
   return(
-    <div className="flex flex-col m-20 p-2 gap-5">
+    <div className="flex flex-col mx-20 mt-10 p-2 gap-5">
       <h2 className="text-center font-semibold text-lg">Buy your favorite products</h2>
       {
         products.map(product => {
