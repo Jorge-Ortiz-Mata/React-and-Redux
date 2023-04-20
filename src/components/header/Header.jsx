@@ -1,9 +1,12 @@
+import { useDispatch } from "react-redux";
 import CustomButton from "../common/CustomButton";
+import { uiActions } from "../../store/ui-slice";
 
 const Header = () => {
+  const dispatch = useDispatch();
 
   const handleClick = () => {
-    console.log('Hello World')
+    dispatch(uiActions.toggleModal());
   }
 
   return(

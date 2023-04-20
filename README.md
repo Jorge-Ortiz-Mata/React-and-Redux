@@ -1,70 +1,126 @@
-# Getting Started with Create React App
+# Readt and Redux.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Redux Setup.
 
-## Available Scripts
+These steps you need to install and congifure Redux in your React application.
+### Install the packages.
 
-In the project directory, you can run:
+Open a new terminal and install the next packages:
 
-### `npm start`
+```bash
+$ yarn add @reduxjs/toolkit react-redux
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Store Folder, Slices and Actions.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Create a new folder under the src folder called **store**. Create an index.js file and separate files to store your slices.
 
-### `npm test`
+* ui-slice.js
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```javascript
+import { createSlice } from '@reduxjs/toolkit';
 
-### `npm run build`
+const initialState = { showModal: false }
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+export const uiSlice = createSlice({
+  name: 'ui',
+  initialState: initialState,
+  reducers: {
+    toggleModal(state){ // It gets the latest state from initialState.
+      state.showModal = !state.showModal;
+    }
+  }
+});
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+export const uiActions = uiSlice.actions;
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+* index.js
 
-### `npm run eject`
+```javascript
+import { configureStore } from "@reduxjs/toolkit";
+import { uiSlice } from "./ui-slice";
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+export const store = configureStore({
+  reducer: { ui: uiSlice.reducer }
+});
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Provder in Index.jsx
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+In your index.jsx file, import Provider to make available the store provider in all the web application.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+* index.jsx
 
-## Learn More
+```javascript
+import { Provider } from 'react-redux';
+import { store } from './store/index';
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>
+);
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+That's all.
 
-### Code Splitting
+## How to implement Redux.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+In order to use the reducers defined in Redux under your application, follow these steps.
 
-### Analyzing the Bundle Size
+### Active a reducer (function inside of a slice).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+We have a custom button where it activates a reducer from our uiActions.
 
-### Making a Progressive Web App
+* src/components/header/Header.jsx
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```javascript
+import { useDispatch } from "react-redux";
+import CustomButton from "../common/CustomButton";
+import { uiActions } from "../../store/ui-slice";
 
-### Advanced Configuration
+const Header = () => {
+  const dispatch = useDispatch();
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+  const handleClick = () => {
+    dispatch(uiActions.toggleModal());
+  }
 
-### Deployment
+  return(
+    <nav className="flex items-center justify-between w-full border p-3">
+      <h3 className="font-bold text-xl">My App</h3>
+      <CustomButton text="Add to the cart" onPress={handleClick} />
+    </nav>
+  )
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+export default Header;
+```
+### Get value from redux
 
-### `npm run build` fails to minify
+* src/components/modal/Modal.jsx
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```javascript
+import { useSelector } from "react-redux";
+import ModalItems from "./ModalItems";
+
+const Modal = () => {
+  const modalState = useSelector((state) => state.ui.showModal); // This is the key on store/index.js
+
+  if (modalState) return;
+
+  return(
+    <div className="border flex flex-col m-20 p-2 gap-5">
+      <h3 className="text-xl font-bold">Your Shopping Cart</h3>
+      <ModalItems />
+    </div>
+  )
+}
+
+export default Modal;
+
+```
