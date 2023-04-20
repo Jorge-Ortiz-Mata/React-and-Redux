@@ -46,7 +46,7 @@ export const store = configureStore({
 });
 ```
 
-### Provder in Index.jsx
+### Provider in Index.jsx
 
 In your index.jsx file, import Provider to make available the store provider in all the web application.
 
