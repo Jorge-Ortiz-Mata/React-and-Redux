@@ -1,17 +1,47 @@
-# Readt and Redux.
+# React, Redux and Firebase.
+
+## Index
+
+- [Firebase API](#firebase-api)
+- [Redux Setup](#redux-setup)
+- [Store folder, Slices and Actions](#store-folder-slices-and-actions)
+- [Provider](#provider-in-indexjsx)
+- [Activate a reducer](#activate-a-reducer-function-inside-of-a-slice)
+- [Get value from Redux](#get-value-from-redux)
+- [Passing arguments](#passing-arguments)
+- [Action Createros](#action-creators)
+
+## Firebase API.
+
+This web appliaction uses Firebase to store items in the database. This is an example of how to use Firebase API with React.
+
+* GET
+```javascript
+const response = await fetch(
+  'https://other-60f25-default-rtdb.firebaseio.com/cart.json',
+)
+```
+
+* PUT
+```javascript
+const response = await fetch(
+  'https://other-60f25-default-rtdb.firebaseio.com/cart.json',{
+    method: 'PUT',
+    body: JSON.stringify(cart.items)
+  }
+)
+```
 
 ## Redux Setup.
 
 These steps you need to install and congifure Redux in your React application.
-### Install the packages.
-
 Open a new terminal and install the next packages:
 
 ```bash
 $ yarn add @reduxjs/toolkit react-redux
 ```
 
-### Store Folder, Slices and Actions.
+## Store Folder, Slices and Actions.
 
 Create a new folder under the src folder called **store**. Create an index.js file and separate files to store your slices.
 
@@ -46,7 +76,7 @@ export const store = configureStore({
 });
 ```
 
-### Provider in Index.jsx
+## Provider in Index.jsx
 
 In your index.jsx file, import Provider to make available the store provider in all the web application.
 
@@ -68,11 +98,7 @@ root.render(
 
 That's all.
 
-## How to implement Redux.
-
-In order to use the reducers defined in Redux under your application, follow these steps.
-
-### Active a reducer (function inside of a slice).
+## Activate a reducer (function inside of a slice).
 
 We have a custom button where it activates a reducer from our uiActions.
 
@@ -100,7 +126,8 @@ const Header = () => {
 
 export default Header;
 ```
-### Get value from redux
+
+## Get value from redux
 
 * src/components/modal/Modal.jsx
 
@@ -125,7 +152,7 @@ export default Modal;
 
 ```
 
-### Passing arguments
+## Passing arguments
 
 We can pass arguments to our reducers and access them by the payload parameter.
 
@@ -187,4 +214,73 @@ export const cartSlice = createSlice({
 })
 
 export const cartActions = cartSlice.actions;
+```
+
+## Action Creators.
+
+We can use redux toolkit to store functions that can be used in different components.
+
+* App.jsx
+
+```javascript
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { sendCartData } from './store/cart-slice';
+
+function App() {
+  const cart = useSelector(state => state.cart);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(sendCartData(cart));
+  }, [cart, dispatch])
+
+  return (
+    <main className="flex flex-col">
+      ...
+    </main>
+  );
+}
+
+export default App;
+```
+
+* cart-slice.js or cart-actions.js
+
+```javascript
+export const sendCartData = (cart) => {
+  return async (dispatch) => {
+    dispatch(uiActions.handleNotification({
+      status: 'sending',
+      message: 'Sending http request'
+    }));
+
+    const sendRequest = async () => {
+      const response = await fetch(
+        'https://other-60f25-default-rtdb.firebaseio.com/cart.json',{
+          method: 'PUT',
+          body: JSON.stringify(cart.items)
+        }
+      )
+
+      if(!response.ok){
+        throw new Error('Send cart failed.');
+      }
+    }
+
+    try {
+      await sendRequest();
+      dispatch(uiActions.handleNotification({
+        status: 'success',
+        message: 'Send cart data successfully'
+      }))
+
+    } catch (error) {
+      dispatch(uiActions.handleNotification({
+        status: 'error',
+        message: 'Something went wrong.'
+      }))
+    }
+  };
+}
 ```
